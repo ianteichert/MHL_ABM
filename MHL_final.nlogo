@@ -147,12 +147,6 @@ to make-bike-paths
   ]
 end
 
-to find-average-bike-path-p
-  let average_p []
-  repeat 1000 [ask links [set bikePath 0] make-bike-paths set average_p lput (sum [link-length] of links with [bikePath = 1] / sum [link-length] of links with [bikePath = 0]) average_p]
-  show mean average_p
-end
-
 to place-agents
   ;test mode with easy setup
   let population count nodes
@@ -237,8 +231,8 @@ end
 ;*DATA MANAGEMENT*
 to setup-data
   set id 1
-  set event-data (list ["runNo" "ID" "eventTime" "MHL" "BA" "tradeMode" "bikePaths" "p_bikePaths" "bDensity" "numCars" "numBikes" "meanV" "pAware" "helmet" "male" "age"])
-  set model-data (list ["runNo" "t" "MHL" "BA" "tradeMode" "bikePaths" "p_bikePaths" "Interactions(t)" "Collisions(t)" "numCars" "pCars" "numBikes" "pBikes" "bDensity" "pHelmet" "meanV" "pAware" "exMins" "METS" "basePM" "bikePM" "age" "male" "numMHLbikes"])
+  set event-data (list ["runNo" "ID" "eventTime" "MHL" "BA" "tradeMode" "bDensity" "numCars" "numBikes" "meanV" "pAware" "helmet" "male" "age"])
+  set model-data (list ["runNo" "t" "MHL" "BA" "tradeMode" "Interactions(t)" "Collisions(t)" "numCars" "pCars" "numBikes" "pBikes" "bDensity" "pHelmet" "meanV" "pAware" "exMins" "METS" "basePM" "bikePM" "age" "male" "numMHLbikes"])
   set pop-pollution 14.3
   set propPopulation []
   file-open "prop population hourly from 12AM to 11PM.txt"
@@ -252,8 +246,6 @@ to store-model-data
   let _MHL MHL ifelse _MHL = true [set _MHL 1] [set _MHL 0]
   let _BA BA ifelse _BA = true [set _BA 1] [set _BA 0]
   let _tradeMode trade-mode ifelse _tradeMode = true [set _tradeMode 1] [set _tradeMode 0]
-  let _bikePaths Bike-Paths ifelse _bikePaths = true [set _bikePaths 1] [set _bikePaths 0]
-  let _p_bikePaths (sum [link-length] of links with [bikePath = 1] / sum [link-length] of links with [bikePath = 0]) if _p_bikePaths = 0 [set _p_bikePaths "NA"]
   let _interactions count cars with [interactions = 1]
   let _collisions count cars with [collisions = 1 or collisions = 2]
   let _cars count cars
@@ -271,7 +263,7 @@ to store-model-data
   let _age mean [age] of bikes
   let _male mean [male] of bikes
   let _numMHLbikes count bikes with [mhl-bike? = 1]
-  set model-data lput (list _runNo _t _MHL _BA _tradeMode _bikePaths _p_bikePaths _interactions _collisions _cars _pCars _bikes _pBikes _density _pHelmet _meanv _paware _exmins _METS _basePM _bikePM _age _male _numMHLbikes) model-data
+  set model-data lput (list _runNo _t _MHL _BA _tradeMode _interactions _collisions _cars _pCars _bikes _pBikes _density _pHelmet _meanv _paware _exmins _METS _basePM _bikePM _age _male _numMHLbikes) model-data
 end
 
 ;*********** MOVEMENT ***********
@@ -417,15 +409,13 @@ to collide
         let _eventTime ticks
         let _MHL MHL ifelse _MHL = true [set _MHL 1] [set _MHL 0]
         let _BA BA ifelse _BA = true [set _BA 1] [set _BA 0]
-        let _bikePaths Bike-Paths ifelse _bikePaths = true [set _bikePaths 1] [set _bikePaths 0]
-        let _p_bikePaths (sum [link-length] of links with [bikePath = 1] / sum [link-length] of links with [bikePath = 0]) if _p_bikePaths = 0 [set _p_bikePaths "NA"]
         let _tradeMode trade-mode ifelse _tradeMode = true [set _tradeMode 1] [set _tradeMode 0]
         let _bDensity (mean [density] of bikes)
         let _numCars count cars
         let _numBikes count bikes
         let _meanV (mean [new.AS] of cars)
         let _pAware (count cars with [memory = 1] / count cars)
-        let _data (list _runNo id _eventTime _MHL _BA _tradeMode _bikePaths _p_bikePaths _bDensity _numCars _numBikes _meanV _pAware _helmet _male _age)
+        let _data (list _runNo id _eventTime _MHL _BA _tradeMode _bDensity _numCars _numBikes _meanV _pAware _helmet _male _age)
         set event-data lput _data event-data
         set id id + 1
         set shape "star"
@@ -714,10 +704,10 @@ to output
   ]
   [
     ;behaviorspace runs
-    pathdir:create (word "C:\\Users\\Ian\\Desktop\\MHL data\\" behaviorspace-experiment-name "\\event-data\\")
-    pathdir:create (word "C:\\Users\\Ian\\Desktop\\MHL data\\" behaviorspace-experiment-name "\\model-data\\")
-    csv:to-file (word "C:/Users/Ian/Desktop/MHL data/" behaviorspace-experiment-name "/event-data/Run number " behaviorspace-run-number " - " remove ":" date-and-time "-event-data.csv") event-data
-    csv:to-file (word "C:/Users/Ian/Desktop/MHL data/" behaviorspace-experiment-name "/model-data/Run number " behaviorspace-run-number " - " remove ":" date-and-time "-model-data.csv") model-data
+    pathdir:create (word "E:\\MHL\\behaviourspace\\" behaviorspace-experiment-name "\\event-data\\")
+    pathdir:create (word "E:\\MHL\\behaviourspace\\" behaviorspace-experiment-name "\\model-data\\")
+    csv:to-file (word "E:/MHL/behaviourspace/" behaviorspace-experiment-name "/event-data/Run number " behaviorspace-run-number " - " remove ":" date-and-time "-event-data.csv") event-data
+    csv:to-file (word "E:/MHL/behaviourspace/" behaviorspace-experiment-name "/model-data/Run number " behaviorspace-run-number " - " remove ":" date-and-time "-model-data.csv") model-data
   ]
 end
 @#$#@#$#@
@@ -823,7 +813,7 @@ initialV
 initialV
 0
 1
-0.0
+0.5
 0.1
 1
 NIL
@@ -849,7 +839,7 @@ motivatedWearers
 motivatedWearers
 0
 1
-0.63
+0.579
 0.001
 1
 NIL
@@ -864,7 +854,7 @@ compliance
 compliance
 0
 1
-0.96
+0.91
 0.001
 1
 NIL
@@ -969,7 +959,7 @@ riskCompensationFactor
 riskCompensationFactor
 -1
 1
-0.5
+0.0
 0.1
 1
 NIL
@@ -1021,7 +1011,7 @@ propCyclists
 propCyclists
 0
 1
-0.13
+0.08
 0.01
 1
 NIL
@@ -1175,7 +1165,7 @@ MHL_effect
 MHL_effect
 0
 1
-0.0
+0.025
 0.005
 1
 NIL
@@ -1262,7 +1252,7 @@ SWITCH
 366
 BA
 BA
-1
+0
 1
 -1000
 
@@ -1391,7 +1381,7 @@ INPUTBOX
 1011
 617
 seed
-2.27677566E8
+0.0
 1
 0
 Number
@@ -1427,23 +1417,6 @@ Bike-Paths
 0
 1
 -1000
-
-BUTTON
-1243
-570
-1414
-603
-NIL
-find-average-bike-path-p
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1846,14 +1819,14 @@ NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment_run_4_MHL_0.05" repetitions="1" runMetricsEveryStep="true">
+  <experiment name="experiment_run_1" repetitions="1" runMetricsEveryStep="true">
     <setup>reset-ticks
 setup 0</setup>
     <go>go</go>
     <enumeratedValueSet variable="seed">
-      <value value="1788009676"/>
-      <value value="-319005078"/>
-      <value value="-257418634"/>
+      <value value="-1927204306"/>
+      <value value="1457050477"/>
+      <value value="1018303069"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="MHL">
       <value value="false"/>
@@ -1872,7 +1845,9 @@ setup 0</setup>
       <value value="0.13"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="MHL_effect">
-      <value value="0.05"/>
+      <value value="0"/>
+      <value value="0.025"/>
+      <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="compliance">
       <value value="0.91"/>
@@ -1995,245 +1970,6 @@ setup 0</setup>
     </enumeratedValueSet>
     <enumeratedValueSet variable="saliencyBike">
       <value value="0.8"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="experimentB-cycling008" repetitions="1" runMetricsEveryStep="true">
-    <setup>reset-ticks
-setup 0</setup>
-    <go>go</go>
-    <enumeratedValueSet variable="initialV">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="endAtTicks">
-      <value value="2880"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="compliance">
-      <value value="0.91"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="start-at-hour">
-      <value value="&quot;00&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Trade-Mode">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="saliencyRoad">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="minV">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Decay">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="MHL">
-      <value value="false"/>
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="seed">
-      <value value="-1927204306"/>
-      <value value="1457050477"/>
-      <value value="1018303069"/>
-      <value value="227677566"/>
-      <value value="508416331"/>
-      <value value="564486731"/>
-      <value value="1336047794"/>
-      <value value="827008643"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="riskCompensationFactor">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="safeDriving">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="propCyclists">
-      <value value="0.08"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="memorySpan">
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="MHL_effect">
-      <value value="0"/>
-      <value value="0.025"/>
-      <value value="0.05"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="BA">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="maxV">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Breeze">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="motivatedWearers">
-      <value value="0.58"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Bike-Paths">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="selfCapacity">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="saliencyBike">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="RCF_Compliance_MW_MHL_0" repetitions="1" runMetricsEveryStep="true">
-    <setup>reset-ticks
-setup 0</setup>
-    <go>go</go>
-    <enumeratedValueSet variable="seed">
-      <value value="-1927204306"/>
-      <value value="1457050477"/>
-      <value value="1018303069"/>
-      <value value="227677566"/>
-      <value value="508416331"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="MHL">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Trade-Mode">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Bike-Paths">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="propCyclists">
-      <value value="0.13"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="MHL_effect">
-      <value value="0"/>
-      <value value="0.025"/>
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="compliance">
-      <value value="0.96"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="motivatedWearers">
-      <value value="0.63"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="riskCompensationFactor">
-      <value value="-0.5"/>
-      <value value="0"/>
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Breeze">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="BA">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initialV">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="minV">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="maxV">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="memorySpan">
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="selfCapacity">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="safeDriving">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="saliencyBike">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="saliencyRoad">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Decay">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="start-at-hour">
-      <value value="&quot;00&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="endAtTicks">
-      <value value="2880"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="RCF_Compliance_MW_MHL_1" repetitions="1" runMetricsEveryStep="true">
-    <setup>reset-ticks
-setup 0</setup>
-    <go>go</go>
-    <enumeratedValueSet variable="seed">
-      <value value="-1927204306"/>
-      <value value="1457050477"/>
-      <value value="1018303069"/>
-      <value value="227677566"/>
-      <value value="508416331"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="MHL">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Trade-Mode">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Bike-Paths">
-      <value value="true"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="propCyclists">
-      <value value="0.13"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="MHL_effect">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="compliance">
-      <value value="0.96"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="motivatedWearers">
-      <value value="0.63"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="riskCompensationFactor">
-      <value value="-0.5"/>
-      <value value="0"/>
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Breeze">
-      <value value="0.2"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="BA">
-      <value value="true"/>
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initialV">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="minV">
-      <value value="0"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="maxV">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="memorySpan">
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="selfCapacity">
-      <value value="1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="safeDriving">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="saliencyBike">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="saliencyRoad">
-      <value value="0.8"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Decay">
-      <value value="15"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="start-at-hour">
-      <value value="&quot;00&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="endAtTicks">
-      <value value="2880"/>
     </enumeratedValueSet>
   </experiment>
 </experiments>
